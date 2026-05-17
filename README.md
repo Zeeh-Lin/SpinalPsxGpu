@@ -1,37 +1,56 @@
 # Spinal PSX GPU
 
-使用 SpinalHDL 复刻 PlayStation 1 的 GPU，目标兼容 [DuckStation](https://github.com/stenzek/duckstation) 模拟器，最终在 FPGA 部署 GPU 并运行 PS1 游戏。
+[![SpinalHDL](https://img.shields.io/badge/SpinalHDL-1.12.3-8e44ad.svg)](https://github.com/SpinalHDL/SpinalHDL)
+[![Scala](https://img.shields.io/badge/Scala-2.13.14-dc322f.svg)](https://www.scala-lang.org/)
 
-## 项目结构
+> PlayStation 1 GPU reimplemented in SpinalHDL — targeting [DuckStation](https://github.com/stenzek/duckstation) compatibility and eventual FPGA deployment.
+
+English | [简体中文](README_zh.md)
+
+---
+
+## Overview
+
+A cycle-accurate recreation of the original PlayStation 1 GPU using SpinalHDL. The goal is to produce a synthesizable core that can integrate with [DuckStation](https://github.com/stenzek/duckstation) as a replacement renderer, and ultimately run PS1 games on FPGA.
+
+## Project Structure
 
 ```
-├── build.sbt                  # SBT 构建配置
-├── hw/
-│   ├── spinal/psxgpu/         # SpinalHDL 硬件源码
-│   ├── gen/                   # 生成的 Verilog/VHDL
-│   ├── verilog/               # 手写 Verilog（可选）
-│   └── vhdl/                  # 手写 VHDL（可选）
-└── project/                   # SBT 插件配置
+.
+├── build.sbt              # SBT build config
+├── src/
+│   └── PsxGpu/            # SpinalHDL hardware sources
+├── project/               # SBT plugins & settings
+├── third_party/           # Reference submodules
+│   ├── duckstation/       #   DuckStation emulator
+│   └── psx-spx/           #   PSX SPX technical reference
+└── .scalafmt.conf         # Scala formatting config
 ```
 
-## 环境要求
+## Prerequisites
 
-- Scala 2.13.14
-- SpinalHDL 1.12.3
-- SBT
+| Tool | Version |
+|------|---------|
+| Scala | 2.13.14 |
+| SBT | 1.10.2 |
+| SpinalHDL | 1.12.3 |
 
-## 常用命令
+## Quick Start
 
 ```sh
-# 生成 Verilog
-sbt "runMain Gpu.YourTopLevelVerilog"
-
-# 运行仿真
-sbt "runMain Gpu.YourTopLevelSim"
+# Clone with submodules
+git clone --recurse-submodules <repo-url>
 ```
 
-## 相关链接
+## Important Notice on Reference Material
 
-- [SpinalHDL 文档](https://spinalhdl.github.io/SpinalDoc-RTD/)
-- [DuckStation 模拟器](https://github.com/stenzek/duckstation)
-- [PS1 GPU 技术参考](https://psx-spx.consoledev.net/graphicsprocessingunitgpu/)
+The [psx-spx](https://psx-spx.consoledev.net/graphicsprocessingunitgpu/) technical reference — a conversion of Martin "nocash" Korth's PlayStation specs (originally at [problemkaputt.de](https://problemkaputt.de/psx-spx.htm)) — is **not a clean-room reverse engineering document**. A substantial portion of it was copied, paraphrased, or derived from confidential Sony documentation and source code distributed through the Psy-Q SDK (see [psx.arthus.net/sdk/Psy-Q](https://psx.arthus.net/sdk/Psy-Q/)).
+
+Because this project uses psx-spx as a technical reference, and psx-spx itself derives from proprietary Sony materials, **this implementation should not be considered clean-room**.
+
+## References
+
+- [SpinalHDL Documentation](https://spinalhdl.github.io/SpinalDoc-RTD/)
+- [DuckStation Emulator](https://github.com/stenzek/duckstation)
+- [PSX SPX — nocash PSX Specs](https://psx-spx.consoledev.net/graphicsprocessingunitgpu/)
+- [Original nocash PSX document](https://problemkaputt.de/psx-spx.htm)
