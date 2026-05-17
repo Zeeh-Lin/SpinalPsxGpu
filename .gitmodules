@@ -1,0 +1,6 @@
+[submodule "third_party/psx-spx"]
+	path = third_party/psx-spx
+	url = https://github.com/psx-spx/psx-spx.github.io.git
+[submodule "third_party/duckstation"]
+	path = third_party/duckstation
+	url = https://github.com/stenzek/duckstation.git

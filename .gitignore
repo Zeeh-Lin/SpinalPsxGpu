@@ -14,6 +14,9 @@ project/boot/
 project/project
 project/plugins/project/
 
+# VSCode specific
+.vscode
+
 # Scala-IDE specific
 .scala_dependencies
 .worksheet
@@ -21,6 +24,9 @@ project/plugins/project/
 
 .idea
 out
+
+# Digital-IDE specific
+netlist
 
 # Metals
 .metals
