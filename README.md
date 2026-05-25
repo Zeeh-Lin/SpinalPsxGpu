@@ -48,6 +48,15 @@ The [psx-spx](https://psx-spx.consoledev.net/graphicsprocessingunitgpu/) technic
 
 Because this project uses psx-spx as a technical reference, and psx-spx itself derives from proprietary Sony materials, **this implementation should not be considered clean-room**.
 
+## Roadmap
+
+- [ ] **Phase 1 — Domain Knowledge**: Understand PS1 GPU internals (psx-spx) and DuckStation's renderer interface
+- [ ] **Phase 2 — Architecture**: Define module boundaries, top-level IO, and verification strategy
+- [ ] **Phase 3 — Implementation**: Incremental RTL: command parser → VRAM → rectangles → polygons → textures → display
+- [ ] **Phase 4 — Verification**: Trace against DuckStation, build regression tests, target FPGA
+
+> This roadmap is intentionally high-level and will evolve as work progresses.
+
 ## References
 
 - [SpinalHDL Documentation](https://spinalhdl.github.io/SpinalDoc-RTD/)

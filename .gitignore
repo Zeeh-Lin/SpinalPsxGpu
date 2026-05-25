@@ -20,7 +20,8 @@ project/plugins/project/
 # Scala-IDE specific
 .scala_dependencies
 .worksheet
-.bloop
+.bloop/
+.bsp/
 
 .idea
 out
@@ -29,7 +30,7 @@ out
 netlist/
 
 # Metals
-.metals
+.metals/
 project/metals.sbt
 
 # Eclipse

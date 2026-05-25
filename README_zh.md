@@ -48,6 +48,15 @@ git clone --recurse-submodules <repo-url>
 
 由于本项目使用 psx-spx 作为技术参考，而 psx-spx 本身衍生自 Sony 的专有材料，**本实现不应被视为净室工程**。
 
+## 路线图
+
+- [ ] **阶段 1 — 领域知识**：理解 PS1 GPU 内部结构（psx-spx）与 DuckStation 渲染器接口
+- [ ] **阶段 2 — 架构设计**：定义模块边界、顶层 IO、验证策略
+- [ ] **阶段 3 — 渐进实现**：增量 RTL：命令解析器 → VRAM → 矩形 → 多边形 → 纹理 → 显示输出
+- [ ] **阶段 4 — 验证集成**：与 DuckStation 对比追踪、建立回归测试、目标 FPGA 部署
+
+> 本路线图为高层概览，将在实际推进过程中持续迭代调整。
+
 ## 参考链接
 
 - [SpinalHDL 文档](https://spinalhdl.github.io/SpinalDoc-RTD/)
