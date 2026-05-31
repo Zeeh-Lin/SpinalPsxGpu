@@ -100,6 +100,23 @@ DuckStation 将一颗真实 PSX GPU 芯片的功能拆分为三层：
 
 **完成标准**：每个子模块 testbench 通过，加上一个顶层集成 testbench 跑若干简单场景（例如渲染一个三角形到 VRAM，读回像素比对）。
 
+#### 1.1 子模块实现顺序（2026-05-31 确定）
+
+原则：渲染核心先行，基础设施紧跟，逐步串联。每一步只依赖上一步，每步都能独立验证。
+
+| 步骤 | 模块 | 类型 | 依赖 | 验证方式 | 预计 session |
+|------|------|------|------|----------|-------------|
+| 1 | **TriangleRasterizer** | 渲染核心 | 无 | 仿真 log 输出像素坐标和颜色，检查三角形内部点数、颜色插值、drawingArea 裁剪 | 2-3 |
+| 2 | **VramController** | 基础设施 | 无 | 写→读→比对；与光栅化器联调：渲染三角形到 VRAM，读回像素比对 | 1-2 |
+| 3 | **Gp0Executor**（执行引擎） | 串联 | Gp0Decoder, Gp0CmdFifo, VramController, TriangleRasterizer | 从 FIFO 消费命令→收集参数→驱动光栅化→像素写入 VRAM 全通路 | 1-2 |
+| 4 | **TextureCache** + 纹理化渲染 | 渲染核心 | VramController, TriangleRasterizer | 2KB 缓存命中/未命中、CLUT、UV 插值；三角形/矩形带纹理渲染 | 2-3 |
+| 5 | **LineRasterizer** + VRAM 传输 + Misc 命令 | 渲染 + 基础设施 | VramController, Gp0Executor | 线条光栅化、矩形填充、CPU↔VRAM DMA、QuickFill、ClearCache | 2-3 |
+| 6 | **Gp1Controller** + **CrtcController** + **DmaInterface** + 顶层集成 | 基础设施 + 集成 | 全部上述模块 | GPUSTAT 寄存器、display mode、扫描线/vblank 中断、DMA2 linked-list；顶层 testbench 跑简单场景 | 2-3 |
+
+节奏：**渲染核心 → 存储 → 串联 → 增强 → 补全 → 集成**
+
+第 1 步即可在仿真 log 中看到三角形的"渲染结果"（文本形式），后续逐步过渡到 VRAM 存储和 DuckStation 视觉输出。
+
 ### 阶段二：DuckStation 集成验证
 
 硬件 GPU 接入模拟器，跑真游戏验证渲染管线。
