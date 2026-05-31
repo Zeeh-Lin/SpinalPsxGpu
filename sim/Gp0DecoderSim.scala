@@ -2,14 +2,14 @@ import spinal.core._
 import spinal.core.sim._
 import PsxGpu._
 
-object Gp0ParserSim {
+object Gp0DecoderSim {
   def main(args: Array[String]): Unit = {
 
     // Generate Verilog
-    Config.spinal.generateVerilog(new Gp0Parser)
+    Config.spinal.generateVerilog(new Gp0Decoder)
 
     // Simulation
-    Config.sim.doSim(new Gp0Parser) { dut =>
+    Config.sim.doSim(new Gp0Decoder) { dut =>
       var passed = 0
       var failed = 0
       def check(label: String)(block: => Boolean): Unit = {

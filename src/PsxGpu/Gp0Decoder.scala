@@ -90,11 +90,11 @@ case class MaskSetting() extends Bundle {
   val checkMask = Bool()   // bit1: 0=Draw Always, 1=Draw if Bit15=0
 }
 
-// ── GP0 Command Parser ──
-// Inputs instructions. Outputs control signals.
-// All outputs are combinatorial from io.inst. Consumers gate on opcode.
+// ── GP0 Command Decoder ──
+// Pure combinational. Decodes a 32-bit GP0 command word.
+// Flow-control outputs (paramWords, bypassFifo) delegated to shared Gp0Flow.
 
-class Gp0Parser() extends Component {
+class Gp0Decoder() extends Component {
   val io = new Bundle {
     val inst       = in  Bits(32 bits)
     val opcode     = out(Opcode())
@@ -178,84 +178,15 @@ class Gp0Parser() extends Component {
   io.maskSetting.setMask   := io.inst(0)
   io.maskSetting.checkMask := io.inst(1)
 
-  // ── Parameter word count ──
-  // How many 32-bit words must be consumed after this command word
-  // before execution begins. 0 = command is self-contained.
-  // Polyline returns 0 (downstream must detect terminator
-  // (word & 0xF000F000) == 0x50005000).
+  // ── Parameter word count / FIFO bypass ──
+  // Delegated to shared Gp0Flow to avoid duplication with FifoController.
 
-  io.paramWords := 0
-
-  switch(op) {
-    is(Opcode.polygon) {
-      val perVertex = U(1, 2 bits) + io.inst(28).asUInt + io.inst(26).asUInt
-      val verts     = Mux(io.inst(27), U(4, 3 bits), U(3, 3 bits))
-      val total     = verts * perVertex
-      val subFirst  = Mux(io.inst(28), U(1), U(0))
-      io.paramWords := (total - subFirst).resize(4 bits)
-    }
-    is(Opcode.line) {
-      val perVertex = U(1, 2 bits) + io.inst(28).asUInt
-      when(io.inst(27)) {
-        io.paramWords := 0  // polyline: variable length
-      }.otherwise {
-        val total    = U(2, 2 bits) * perVertex
-        val subFirst = Mux(io.inst(28), U(1), U(0))
-        io.paramWords := (total - subFirst).resize(4 bits)
-      }
-    }
-    is(Opcode.rectangle) {
-      val count = U(1, 2 bits) + io.inst(26).asUInt
-      when(io.inst(28 downto 27) === B"00") {
-        io.paramWords := (count + 1).resize(4 bits)
-      }.otherwise {
-        io.paramWords := count.resize(4 bits)
-      }
-    }
-    is(Opcode.vramToVram) {
-      io.paramWords := 3
-    }
-    is(Opcode.cpuToVram) {
-      io.paramWords := 2
-    }
-    is(Opcode.vramToCpu) {
-      io.paramWords := 2
-    }
-    is(Opcode.misc) {
-      when(io.inst(28 downto 24) === B"00010") {
-        io.paramWords := 2  // Quick Fill
-      }
-    }
-    default {}
-  }
-
-  // ── FIFO bypass ──
-  // Commands that don't consume a FIFO slot (NOP variants, E3h-E5h).
-
-  io.bypassFifo := False
-
-  switch(op) {
-    is(Opcode.misc) {
-      val cmd = io.inst(28 downto 24).asUInt
-      io.bypassFifo := cmd === U(0, 5 bits) || (cmd >= U(4, 5 bits) && cmd <= U(30, 5 bits))
-      // excludes 01h (Clear Cache), 02h (Quick Fill), 03h (unknown), 1Fh (IRQ)
-    }
-    is(Opcode.env) {
-      val cmdByte = io.inst(31 downto 24).asUInt
-      val isNopMirror = cmdByte === U(0xE0, 8 bits) || cmdByte >= U(0xE7, 8 bits)
-      val isDrawCfg   = cmdByte >= U(0xE3, 8 bits) && cmdByte <= U(0xE5, 8 bits)
-      io.bypassFifo := isNopMirror || isDrawCfg
-    }
-    default {}
-  }
+  io.paramWords := Gp0Flow.paramWords(io.inst)
+  io.bypassFifo := Gp0Flow.bypassFifo(io.inst)
 
   // ── Misc command decoding ──
-  switch(op) {
-    is(Opcode.misc) {
-      io.clearCache := io.inst(28 downto 24) === B"00001"
-    }
-    default {
-      io.clearCache := False
-    }
+  io.clearCache := False
+  when(op === Opcode.misc) {
+    io.clearCache := io.inst(28 downto 24) === B"00001"  // GP0(01h) Clear Cache
   }
 }

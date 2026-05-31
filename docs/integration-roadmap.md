@@ -88,7 +88,7 @@ DuckStation 将一颗真实 PSX GPU 芯片的功能拆分为三层：
 
 | 模块 | 功能 | 验证方式 |
 |------|------|----------|
-| Gp0Parser | GP0 命令解析 + 16 字 FIFO | 喂 GP0 字流，检查命令分发结果 |
+| Gp0Decoder | GP0 命令解码 + 16 字 FIFO | 喂 GP0 字流，检查命令分发结果 |
 | Gp1Controller | GP1 寄存器状态机 | 写 GP1 命令，检查 GPUSTAT 字段 |
 | RenderPipeline | 光栅化 / 纹理映射 / 混合 | 喂顶点数据，读回 VRAM 像素值 |
 | VramController | VRAM 读写仲裁 | 并发读写，检查时序冲突 |
