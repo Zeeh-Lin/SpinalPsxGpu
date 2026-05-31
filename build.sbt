@@ -16,3 +16,13 @@ lazy val projectname = (project in file("."))
   )
 
 fork := true
+
+// Clean configuration 
+cleanFiles ++= Seq(
+  baseDirectory.value / "project" / "target",       // meta-build cache
+  baseDirectory.value / "project" / "project" / "target", // plugin meta-build
+  baseDirectory.value / ".bloop",                    // Bloop (Metals)
+  baseDirectory.value / ".metals",                   // Metals LSP
+  baseDirectory.value / "simWorkspace",              // SpinalHDL sim
+  baseDirectory.value / "gen"                        // generated RTL (if any)
+)
